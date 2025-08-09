@@ -122,6 +122,31 @@ func removeDuplicates(nums []int) int {
 	return len(pointer2)
 }
 
+func merge(intervals [][]int) [][]int {
+	if len(intervals) == 0 {
+		return [][]int{}
+	}
+	var result [][]int = [][]int{intervals[0]}
+	for i := 1; i < len(intervals); i++ {
+		current := intervals[i]
+		last := result[len(result)-1]
+
+		if current[0] <= last[1] {
+			result[len(result)-1][1] = max(last[1], current[1])
+		} else {
+			result = append(result, current)
+		}
+	}
+	return result
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func main() {
 	// nums := []int{2, 2, 1}
 	// fmt.Println(singleNumber(nums))
@@ -149,9 +174,13 @@ func main() {
 	// fmt.Println(plusOne([]int{1, 2, 3}))
 	// fmt.Println(plusOne([]int{4, 3, 2, 1}))
 
-	nums := []int{1, 1, 2}
-	fmt.Println("有效长度：", removeDuplicates(nums), " 新数组：", nums)
-	nums = []int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}
-	fmt.Println("有效长度：", removeDuplicates(nums), " 新数组：", nums)
+	// nums := []int{1, 1, 2}
+	// fmt.Println("有效长度：", removeDuplicates(nums), " 新数组：", nums)
+	// nums = []int{0, 0, 1, 1, 1, 2, 2, 3, 3, 4}
+	// fmt.Println("有效长度：", removeDuplicates(nums), " 新数组：", nums)
 
+	var intervals [][]int = [][]int{{1, 3}, {2, 6}, {8, 10}, {15, 18}}
+	fmt.Println(merge(intervals))
+	intervals = [][]int{{1, 4}, {4, 5}}
+	fmt.Println(merge(intervals))
 }
