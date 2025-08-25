@@ -89,8 +89,7 @@ func gormAdvanced() {
 	// comment := gorm_advanced.Comment{Content: "这是一条评论", PostID: post.ID}
 	// db.Create(&comment)
 
-	comment := gorm_advanced.Comment{}
-	comment.ID = 8
+	comment := gorm_advanced.Comment{Model: gorm.Model{ID: 8}}
 	db.Debug().Model(&comment).Find(&comment)
 	db.Debug().Model(&comment).Delete(&comment)
 }

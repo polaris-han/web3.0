@@ -1,0 +1,541 @@
+{
+	"info": {
+		"_postman_id": "6af7c2e6-3f05-465a-98b3-c86695898e3e",
+		"name": "博客API测试集合",
+		"description": "包含注册、登录、文章及评论相关接口的测试",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7635466"
+	},
+	"item": [
+		{
+			"name": "1. 注册",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证响应状态码",
+							"pm.test(\"注册接口状态码正确\", function () {",
+							"    const validStatus = [200, 201, 400];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 验证响应格式为JSON",
+							"pm.test(\"响应格式为JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// 验证成功响应",
+							"if (pm.response.code === 200 || pm.response.code === 201) {",
+							"    pm.test(\"注册成功\", function () {",
+							"        pm.expect(pm.response.json()).to.have.any.keys(\"success\", \"message\");",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"test_user_{{$randomInt}}\",\n    \"email\": \"test{{$randomInt}}@example.com\",\n    \"password\": \"Test@123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"register"
+					]
+				},
+				"description": "用户注册接口"
+			},
+			"response": []
+		},
+		{
+			"name": "2. 登录",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"登录成功，状态码为200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// 验证响应格式",
+							"pm.test(\"响应格式为JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// 提取并保存token",
+							"pm.test(\"响应包含token\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"token\");",
+							"    pm.collection.set(\"auth_token\", jsonData.token);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"李四\",\n    \"password\": \"123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "用户登录接口，成功后获取token"
+			},
+			"response": []
+		},
+		{
+			"name": "3. 文章列表",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"文章列表接口状态码为200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// 验证响应格式",
+							"pm.test(\"响应格式为JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// 保存第一篇文章ID供后续使用",
+							"pm.test(\"保存第一篇文章ID\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    if (jsonData.length > 0) {",
+							"        pm.collectionVariables.set(\"post_id\", jsonData[0].ID);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/posts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"posts"
+					]
+				},
+				"description": "获取文章列表"
+			},
+			"response": []
+		},
+		{
+			"name": "4. 查询文章详情",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"文章详情接口状态码正确\", function () {",
+							"    const validStatus = [200, 404];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 验证响应格式",
+							"pm.test(\"响应格式为JSON\", function () {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"// 验证文章详情字段",
+							"if (pm.response.code === 200) {",
+							"    pm.test(\"文章详情字段完整\", function () {",
+							"        const jsonData = pm.response.json();",
+							"        pm.expect(jsonData).to.have.all.keys(\"id\", \"title\", \"content\");",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/posts/{{post_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"posts",
+						"{{post_id}}"
+					]
+				},
+				"description": "查询指定ID的文章详情"
+			},
+			"response": []
+		},
+		{
+			"name": "5. 发表文章",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"发表文章接口状态码正确\", function () {",
+							"    const validStatus = [200, 201, 401];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 未登录验证",
+							"if (pm.response.code === 401) {",
+							"    pm.test(\"未登录时拒绝访问\", function () {",
+							"        pm.expect(pm.response.json().error).to.include(\"unauthorized\");",
+							"    });",
+							"    return;",
+							"}",
+							"",
+							"// 成功发表验证",
+							"pm.test(\"发表文章成功\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"ID\");",
+							"    pm.collectionVariables.set(\"new_post_id\", jsonData.ID);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"测试文章标题_{{$randomInt}}\",\n    \"content\": \"这是一篇测试文章内容_{{$randomInt}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/posts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"posts"
+					]
+				},
+				"description": "发表新文章，需要认证"
+			},
+			"response": []
+		},
+		{
+			"name": "6. 修改文章",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"修改文章接口状态码正确\", function () {",
+							"    const validStatus = [200, 401, 404];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 成功修改验证",
+							"if (pm.response.code === 200) {",
+							"    pm.test(\"修改文章成功\", function () {",
+							"        const jsonData = pm.response.json();",
+							"        pm.expect(jsonData.id).to.eql(parseInt(pm.environment.get(\"new_post_id\")));",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": {{new_post_id}},\n    \"title\": \"修改后的测试文章标题_{{$randomInt}}\",\n    \"content\": \"修改后的测试文章内容_{{$randomInt}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/posts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"posts"
+					]
+				},
+				"description": "修改文章，需要认证"
+			},
+			"response": []
+		},
+		{
+			"name": "7. 删除文章",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"删除文章接口状态码正确\", function () {",
+							"    const validStatus = [200, 401, 404];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 成功删除验证",
+							"if (pm.response.code === 200) {",
+							"    pm.test(\"删除文章成功\", function () {",
+							"        pm.expect(pm.response.json().message).to.include(\"deleted\");",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/posts/{{new_post_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"posts",
+						"{{new_post_id}}"
+					]
+				},
+				"description": "删除文章，需要认证"
+			},
+			"response": []
+		},
+		{
+			"name": "8. 发表评论",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"发表评论接口状态码正确\", function () {",
+							"    const validStatus = [200, 201, 401, 404];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 成功发表验证",
+							"if (pm.response.code === 200 || pm.response.code === 201) {",
+							"    pm.test(\"发表评论成功\", function () {",
+							"        const jsonData = pm.response.json();",
+							"        pm.expect(jsonData).to.have.property(\"ID\");",
+							"        pm.collectionVariables.set(\"comment_id\", jsonData.ID);",
+							"    });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"content\": \"测试评论内容_{{$randomInt}}\",\n    \"postId\": {{post_id}}\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/comments",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"comments"
+					]
+				},
+				"description": "发表评论，需要认证"
+			},
+			"response": []
+		},
+		{
+			"name": "9. 查询文章所有评论",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 验证状态码",
+							"pm.test(\"查询评论接口状态码正确\", function () {",
+							"    const validStatus = [200, 401, 404];",
+							"    pm.expect(validStatus).to.include(pm.response.code);",
+							"});",
+							"",
+							"// 验证响应格式",
+							"pm.test(\"响应格式为JSON数组\", function () {",
+							"    pm.response.to.be.json;",
+							"    pm.expect(pm.response.json()).to.be.an(\"array\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{auth_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/posts/{{post_id}}/comments",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"posts",
+						"{{post_id}}",
+						"comments"
+					]
+				},
+				"description": "查询指定文章的所有评论，需要认证"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// 自动为需要认证的接口添加Authorization头",
+					"const token = pm.environment.get(\"auth_token\");",
+					"if (token && pm.request.url.toString().includes(\"/api/\")) {",
+					"    // 检查是否已存在Authorization头，避免重复添加",
+					"    const hasAuthHeader = pm.request.headers.find(h => h.key === \"Authorization\");",
+					"    if (!hasAuthHeader) {",
+					"        pm.request.headers.add({",
+					"            key: \"Authorization\",",
+					"            value: `Bearer ${token}`",
+					"        });",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "post_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "new_post_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "comment_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
